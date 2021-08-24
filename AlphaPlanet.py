@@ -31,11 +31,11 @@ def update_traits(genes):
     poison_tendency = genes[4]
     reproduction_age = genes[5]
 
-    efficiency = max(2,1/abs(sun_color - color))*sun_intensity
-    max_size = woodiness / gravity
-    max_age = woodiness / growth_rate #add constant?
-    reproductive_chance = (max_size + max_age + poison_tendency) * .3 #add constant?
-    reproductive_energy = (food_tendency + poison_tendency) / growth_rate
+    efficiency = min(5,1/abs(sun_color - color))
+    max_size = woodiness / gravity * 20
+    max_age = woodiness / growth_rate * 20 #add constant?
+    reproductive_chance = (max_size + max_age + poison_tendency) / 60 #add constant?
+    reproductive_energy = (food_tendency + poison_tendency) / growth_rate * 5
     fiberiness = 1 - woodiness
     reproductive_range = (max_size - poison_tendency + food_tendency) #add constant?
 
@@ -201,8 +201,8 @@ def tick():
                     size_weight = 0.25
 
                 age += 1
-                energy += efficiency * size_weight #may wish to curve somehow?
-                energy -= plant_size
+                energy += efficiency * size_weight *sun_intensity #may wish to curve somehow?
+                energy -= plant_size**2
                 plant_size += growth_rate
                 plant_size = min(max_size, plant_size)
 
@@ -244,6 +244,7 @@ def tick():
                     alive_count -= 1
 
                 if age == 1 and energy < 0:
+                    print(str(age))
                     died_young_count += 1
 
     for i in range(len(reproduction_queue)):
