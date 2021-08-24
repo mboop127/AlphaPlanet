@@ -8,6 +8,7 @@ plant_list = {}
 sun_color = .5
 sun_intensity = 1
 gravity = 1
+climate_range = 1
 
 
 f = open("log.csv", 'w+')
@@ -18,7 +19,7 @@ def generate_empty_map():
     map = {}
     for x in range(map_size):
         for y in range(map_size):
-            map[str(x) + "," + str(y)] = [random.randint(0,1)]
+            map[str(x) + "," + str(y)] = climate_range/size * (x + 1) #creates climate zones
 
     return map
 
@@ -27,7 +28,7 @@ def update_traits(genes):
     color = genes[0]
     growth_rate = genes[1]
     woodiness = genes[2]
-    food_tendency = genes[3]
+    food_tendency = genes[3] #also storage efficiency
     poison_tendency = genes[4]
     reproduction_age = genes[5]
 
@@ -81,7 +82,7 @@ def reproduce_plant(genes, location):
     color = genes[0] * random.uniform(.99,1.01)
     growth_rate = genes[1] * random.uniform(.99,1.01)
     woodiness = max(0,min(1,genes[2] * random.uniform(.99,1.01)))
-    food_tendency = genes[3] * random.uniform(.99,1.01)
+    food_tendency = min(1,genes[3] * random.uniform(.99,1.01))
     poison_tendency = genes[4] * random.uniform(.99,1.01)
     reproduction_age = genes[5] * random.uniform(.99,1.01)
 
@@ -201,7 +202,7 @@ def tick():
                     size_weight = 0.1
 
                 age += 1
-                energy += efficiency * size_weight * sun_intensity #may wish to curve somehow?
+                energy += efficiency * size_weight * map[location] #may wish to curve somehow?
                 energy -= plant_size**2 * 3
                 plant_size += growth_rate
                 plant_size = min(max_size, plant_size)
@@ -230,6 +231,7 @@ def tick():
                     else:
                         reproduction_queue.append([genes,location_string])
 
+                energy *= food_tendency
 
                 stats[0] = age
                 stats[1] = plant_size
