@@ -1,14 +1,14 @@
 import random
 import time
 
-map_size = 10
+map_size = 100
 plant_list = {}
 
 #world traits
 sun_color = .5
 sun_intensity = 1
 gravity = 1
-climate_range = 1
+climate_range = 2
 
 
 f = open("log.csv", 'w+')
@@ -19,7 +19,7 @@ def generate_empty_map():
     map = {}
     for x in range(map_size):
         for y in range(map_size):
-            map[str(x) + "," + str(y)] = climate_range/size * (x + 1) #creates climate zones
+            map[str(x) + "," + str(y)] = climate_range/map_size * (x + 1) #creates climate zones, only 1 poll atm
 
     return map
 
@@ -36,7 +36,7 @@ def update_traits(genes):
     max_size = woodiness / gravity * 20
     max_age = woodiness / growth_rate * 20 #add constant?
     reproductive_chance = (max_size + max_age + poison_tendency) / 100 #add constant?
-    reproductive_energy = (food_tendency + poison_tendency + reproductive_chance) * 5
+    reproductive_energy = (food_tendency + poison_tendency)/growth_rate
     fiberiness = 1 - woodiness
     reproductive_range = (max_size - poison_tendency + food_tendency) #add constant?
 
@@ -202,12 +202,12 @@ def tick():
                     size_weight = 0.1
 
                 age += 1
-                energy += efficiency * size_weight * map[location] #may wish to curve somehow?
+                energy += efficiency * size_weight * map[location] * sun_intensity #may wish to curve somehow?
                 energy -= plant_size**2 * 3
                 plant_size += growth_rate
                 plant_size = min(max_size, plant_size)
 
-                if energy >= reproductive_energy and random.random() < reproductive_chance:
+                if energy >= reproductive_energy and age > reproduction_age and random.random() < reproductive_chance:
 
                     energy -= reproductive_energy
                     seed_location = location.split(",")
@@ -257,13 +257,19 @@ def tick():
     if alive_count == 0:
         generate_plant()
 
+    return(alive_count)
 
 map = generate_empty_map()
 generate_plant()
 
+alive_count = 0
+#restarts until working plant
+
+while alive_count < 5:
+    alive_count = tick()
 
 start = time.time()
-for i in range(10000000):
+for i in range(100000):
     #print(str(i))
     tick()
     #print(plant_list)
@@ -271,5 +277,22 @@ for i in range(10000000):
 end = time.time()
 print(end - start)
 #print(sum(age_debug)/len(age_debug))
+
+f.close()
+
+f = open("survey.csv","w+")
+
+#print(plant_list)
+
+f.write("x coord,y coord,color,growth_rate,woodiness,food_tendency,poison_tendency,reproduction_age\n")
+for location in plant_list:
+    for i in range(len(plant_list[location])):
+        if plant_list[location][i] != "dead":
+            f.write(str(location) + ",")
+            for x in range(len(plant_list[location][i][0])):
+                f.write(str(plant_list[location][i][0][x]))
+                if x < len(plant_list[location][i][0]):
+                    f.write(",")
+            f.write("\n")
 
 f.close()
