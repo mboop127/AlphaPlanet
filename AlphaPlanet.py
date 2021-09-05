@@ -4,7 +4,7 @@ import json
 import matplotlib.pyplot as plt
 from numpy import random as nprandom
 
-run_length = 100000
+run_length = 200000
 map_size = 250
 
 plant_list = {}
