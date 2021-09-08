@@ -20,7 +20,7 @@ drastic_shift = .3
 gravity = 1
 gene_limit = 10
 
-equator_heat = 5
+equator_heat = 3
 noise_chance = 0.05
 noise_max_size = 25
 tile_randomness = 0.01
@@ -29,7 +29,7 @@ water_level = 1.4
 crater_chance = 0.00001
 max_crater_size = 50
 
-world_wetness = 1.01
+world_wetness = 1.02
 world_altitude = 1
 
 map_name = str(int(time.time()))
@@ -530,16 +530,15 @@ for location in plant_list:
 
 f.close()
 
-plant_data = open(plant_map_name + ".json","w+")
-json.dump(plant_list, plant_data)
-plant_data.close()
+write_dictionary = {"Map": map, "Plants": plant_list, "Player": {}}
 
 map_data = open(map_name + ".json","w+")
-json.dump(map, map_data)
+json.dump(write_dictionary, map_data)
 map_data.close()
 
 plt.plot(x_graph, y_graph)
 plt.savefig("population")
 
+plt.clf()
 plt.plot(x_graph, climate_graph)
 plt.savefig("climate")
